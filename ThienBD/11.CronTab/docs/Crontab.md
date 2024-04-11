@@ -81,7 +81,7 @@ Chạy từ thứ 2 đến thứ 6
 Việc thường xuyên sử dụng cron có thể dẫn đến một số lỗi, chẳng hạn như tài nguyên hệ thống (bộ nhớ, CPU…) bị sử dụng quá mức. Do đó, sysadmin có thể giới hạn quyền truy cập của người dùng để hạn chế lỗi xảy ra. Cụ thể, hãy tạo một file /ect/cron.allow, chứa danh sách người dùng có quyền tạo cron job. Tuy nhiên, người dùng root không thể bị chặn sử dụng cron
 
 
-# 3.1.Crond
+## 3.1.Crond
 
 Thư mục `/etc/cron.d` là nơi chứa các ứng dụng, như SpamAssassin, sysstat, file cài đặt cron…Vì không có người dùng spamassassin hay sysstat, các chương trình này cần một nơi để định vị các file cron. Vì vậy chúng sẽ được đặt ở trong `/etc/cron.d`
 
@@ -96,7 +96,7 @@ File `/etc/cron.d/sysstat` chứa các cron job liên quan đến báo cáo ho�
 Cron file sysstat sẽ gồm hai dòng lệnh để thực hiện các task. Dòng thứ nhất chạy lệnh sa1 mỗi 10 phút để thu thập dữ liệu trong các file nhị phân đặc biệt, được đặt ở thư mục /var/log/sa. Sau đó, mỗi tối vào 23:53, chương trình sa2 sẽ chạy để tạo một bản tóm tắt hàng ngày.
 
 
-# 3.2.Anacron
+## 3.2.Anacron
 
 Chương trình anacron thực hiện các chức năng tương tự như crond .Nhưng nó có thể chạy các job đã bị bỏ qua, ví dụ như máy tính đã tắt hoặc không thể chạy job trong một thời gian. Ngay sau khi máy tính được khởi động lại, anacron sẽ kiểm tra các job đã được cấu hình có bỏ lỡ lịch chạy nào không . Nếu có các job này sẽ được chạy ngay lập tức .Nhưng các job sẽ chỉ chạy 1 lần bất kể bao nhiêu lần nó đã bỏ lỡ lịch 
 
