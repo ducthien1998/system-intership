@@ -1,6 +1,6 @@
 # Tìm hiểu về lệnh DIG
 
-DNS là viết tắt của Domain Infomation Groper là một công cụ dòng lệnh quản trị mạng được dùng để truy vấn DNS names server .Với lệnh `dig` , bạn có thể truy vấn thông tin về các bản ghi DNS, bao gôm :*host address* , *mail exchanges*, và *name servers*.Đây là công cụ được các quản trị viên hệ thống sử dụng phổ biến nhất để khắc phục sự cố DNS vì tính linh hoạt và dễ sử dụng của nó . `dig` là một phần của bộ phần mềm BIND DNS .
+DIG là viết tắt của Domain Infomation Groper là một công cụ dòng lệnh quản trị mạng được dùng để truy vấn DNS names server .Với lệnh `dig` , bạn có thể truy vấn thông tin về các bản ghi DNS, bao gôm :*host address* , *mail exchanges*, và *name servers*.Đây là công cụ được các quản trị viên hệ thống sử dụng phổ biến nhất để khắc phục sự cố DNS vì tính linh hoạt và dễ sử dụng của nó . `dig` là một phần của bộ phần mềm BIND DNS .
 
 
 # 1.Cài đặt Dig trên Linux
