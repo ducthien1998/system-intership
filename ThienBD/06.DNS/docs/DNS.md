@@ -5,7 +5,7 @@ DNS (Domain Name System) – hệ thống tên miền – là một hệ thống
 Toàn bộ máy tính trên Internet, từ smart phone, laptop, PC đến các server phục vụ các service như websites, mail,.. đều giao tiếp với nhau thông qua địa chỉ IP. Tuy nhiên, địa chỉ IP này đối với các website có thể khác nhau và khó ghi nhớ đối với người dùng.
 Hệ thống DNS nắm vai trò như một cuốn “danh bạ” để đối chiếu với tên miền và trả lại cho người dùng IP của máy chủ.
 
-![Alt text](../imgs/1.jpg)
+![alt text](../imgs/1.png)
 
 Địa chỉ IP của một tên miền cụ thể có thể kiểm tra thông qua việc sử dụng lệnh ping trong cmd (Windows):\
 
@@ -14,7 +14,7 @@ Hệ thống DNS nắm vai trò như một cuốn “danh bạ” để đối c
 Trong ví dụ, tên miền google.com có IP là 8.8.8.8
 
 ## 1.2.Tên miền
-![Alt text](../imgs/3.jpg)
+![alt text](../imgs/3.png)
 
 - Tên miền gốc (root domain): Nó là đỉnh của nhánh cây của tên miền. Nó có thể biểu diễn đơn giản chỉ là dấu chấm “.”
 - Tên miền cấp cao nhất - Top-level domain (TLD) : Top-level domain nằm ở đầu phân cấp về tên miền. ICANN (Internet Corporation for Assigned Names and Numbers) là tổ chức được cấp quyền kiểm soát quản lý đối với các tên miền cấp cao nhất. Sau đó có thể phân phối tên miền bên dưới TLD, thường thông qua một công ty đăng ký tên miền (domain registrar). Top-level domain là phần xa nhất ở bên phải (được phân tách bằng dấu chấm). Các tên miền cấp cao phổ biến là “com”, “net”, “org”, “gov”, “edu”,..
@@ -25,8 +25,8 @@ Trong ví dụ, tên miền google.com có IP là 8.8.8.8
   - Org: Tên miền này được dùng cho các tổ chức khác.
   - Info: Tên miền này dùng cho việc phục vụ thông tin.
 
-- Host : Với tên miền, chủ sở hữu có thể tham chiếu đến các máy tính hoặc dịch vụ riêng biệt. Chẳng hạn, hầu hết chủ sở hữu tên miền làm cho máy chủ web của họ có thể truy cập được thông qua tên miền (cloud365.vn) và cũng thông qua định nghĩa “máy chủ” “www” (www.cloud365.vn).
-- Tên miền con (Subdomain) : DNS hoạt động theo thứ bậc. TLD có thể có nhiều tên miền bên dưới. Chẳng hạn, TLD “com” có cả “google.com” và “nhanhoa.com” bên dưới nó. “Tên miền con” là tên miền thuộc một phần của tên miền lớn hơn. Trong trường hợp này, “nhanhoa.com” có thể được coi là tên miền con của “com”. Phần “nhanhoa” được gọi là SLD (second level domain), có nghĩa là tên miền cấp hai.
+- Host : Với tên miền, chủ sở hữu có thể tham chiếu đến các máy tính hoặc dịch vụ riêng biệt.
+- Tên miền con (Subdomain) : DNS hoạt động theo thứ bậc. TLD có thể có nhiều tên miền bên dưới. Chẳng hạn, TLD “com” example.com” . “Tên miền con” là tên miền thuộc một phần của tên miền lớn hơn. Trong trường hợp này, example.com” có thể được coi là tên miền con của “com”. Phần “example” được gọi là SLD (second level domain), có nghĩa là tên miền cấp hai.
 
 ![Alt text](../imgs/4.jpg)
 
@@ -40,26 +40,34 @@ Trong ví dụ, tên miền google.com có IP là 8.8.8.8
 ## 1.4.Các thành phần của DNS
 Dịch vụ DNS bao gồm 4 thành phần:
 
-- DNS Cache
-- Resolvers
 - Name servers
-- Name space
+- DNS Cache
+- DNS Resolvers
+- DNS Protoco
 
-1. DNS cache
-
-Thuật ngữ này thường bị nhầm lẫn do nó có ít nhất 2 ý nghĩa. Đầu tiên DNS Cache có thể là danh sách tên và địa chỉ IP mà bạn đã truy vấn và đã được giải quyết và được lưu vào bộ nhớ cache để không có lưu lượng truy cập mạng được tạo ra và truy cập nhanh hơn. Ý nghĩa thứ hai liên quan đến một DNS Server chỉ đơn giản là thực hiện các truy vấn đệ quy và bộ đệm ẩn mà không thực sự là một máy chủ có thẩm
-
-2. Resolvers
-
-Là bất kỳ host nào trên Internet cần dùng để tra cứu thông tin tên miền, giống như thiết bị bạn đang sử dụng để đọc trang web này.
-
-3. Name servers
+1. Name servers
 
 Những server này chứa cơ sở dữ liệu về tên và địa chỉ IP và phục vụ các yêu cầu DNS cho client.
 
-4. Name space
+Có nhiều loại Name servers khác nhau 
+  - Root Name Servers: Đây là máy chủ cao cấp nhất trong hệ thống DNS và lưu trữ thông tin cho các Name servers cao cấp nhất (TLD)
+  - Top-level Name Server: Máy chủ này lưu trữ thông tin của các tên miền cấp 2 (SLD)
+  - Authoritative Name Servers: Máy chủ tên miền lưu trữ thông tin bản ghi DNS chính thức cho một tên miền cụ thể.
+  - Recursive Name Servers: Máy chủ tên đệ quy hỗ trợ giải quyết tên miền bằng cách truy vấn các máy chủ tên khác thay vì lưu trữ tất cả thông tin bản ghi DNS cục bộ.
 
-Là cơ sở dữ liệu về địa chỉ IP và các tên liên quan của chúng.
+2. DNS Cache
+
+Bộ nhớ đệm DNS là bộ nhớ tạm lưu trữ các bản ghi DNS gần đây được truy vấn để tăng tốc độ giải quyết tên miền trong tương lai. Bộ nhớ đệm DNS có thể được tìm thấy trên máy chủ DNS và thiết bị người dùng.
+
+3. DNS Resolvers
+
+DNS Resolvers là phần mềm chạy trên máy tính người dùng hoặc thiết bị mạng có nhiệm vụ dịch tên miền thành địa chỉ IP.
+Khi người dùng nhập tên miền vào trình duyệt web hoặc ứng dụng mạng khác, DNS Resolvers sẽ truy vấn các máy chủ tên để tìm địa chỉ IP tương ứng.
+
+4. DNS Protoco
+
+Giao thức DNS là một tập hợp các quy tắc và quy định được sử dụng để trao đổi thông tin giữa các máy chủ tên và trình giải quyết DNS.
+Giao thức DNS dựa trên giao thức UDP.
 
 
 # 2.Các loại DNS Servers
@@ -70,17 +78,18 @@ Là cơ sở dữ liệu về địa chỉ IP và các tên liên quan của ch�
 
 # 3.Cách hoạt động của DNS
 
-![Alt text](../imgs/5.png)
+![alt text](../imgs/5.jpg)
 
 Ví dụ bạn muốn truy cập vào google.com
 
-1. Yêu cầu tìm kiếm địa chỉ IP ứng với tên miền google.com sẽ được gửi từ máy người dùng tới Name server cục bộ 
-2. Máy chủ domain cục bộ sẽ tìm kiếm trong kho dữ liệu xem có cơ sở dữ liệu chuyển đổi từ tên miền sang địa chỉ IP của domain mà người dùng yêu cầu hay không .Nếu có thì cơ sở dữ liệu sẽ được gửi trả lại địa chỉ IP của máy có tên miền đó
-3. Nếu không có cơ sở dữ liệu về domain yêu cầu , máy chủ tên miền cục bộ sẽ hỏi các máy chủ tên miền ở mức cao nhất (ROOT). Máy chỉ domain mức cao nhât (mức ROOT) sẽ chỉ cho máy chủ domain cục bộ mà nó quản lý có đuôi .com
-4. Máy chủ doamin cục bộ gửi yêu cầu đến máy chủ quản lý domain ".com" - domain tổ chức thương mại để tìm tên Google.com
-5. Máy chủ domain cục bộ hỏi máy chủ quản lý domain ".com" địa chỉ IP domain "google.com" => có => gửi trả 
-6. Máy chủ domain cục bộ chuyển thông tin đến máy của người dùng 
-7. Người dùng sẽ dùng địa chỉ IP này kết nối đến máy chủ chứ website có địa chỉ google.com
+1. Example.com được nhập vào trình duyệt, sau đó trình duyệt sẽ gửi yêu cầu tới DNS resolver 
+2. DNS resolver sẽ truy vấn tên miền với Root Name server
+3. Root Name server sẽ phản hồi lại tên miền với TLD trong trường hợp này là .com
+4. DNS resolver tiếp tục gửi yêu cầu tới TLD để lấy thông tin tên miền với đuôi .com
+5. TLDNS sẽ phản hồi lại với thông tin TLD của google.com
+6. DNS resolver gửi thông tin nhận được đến Authoritative Name servers
+7. Authoritative Name servers sẽ trả về IP addresses của website 
+8. Trình phân giải DNS phản hồi trình duyệt web bằng địa chỉ IP của miền được yêu cầu ban đầu.
 
 
 # 4.Các loại bản ghi trên DNS
@@ -227,7 +236,13 @@ Tùy vào hệ thống DNS mà có thể hiển thị bản ghi SPF hoặc TXT V
 *Tài liệu tham khảo*
 
 [1] [https://blog.cloud365.vn/linux/dns-introduction/](https://blog.cloud365.vn/linux/dns-introduction/)
+
 [2] [https://news.cloud365.vn/dns-va-cac-khai-niem-lien-quan/](https://news.cloud365.vn/dns-va-cac-khai-niem-lien-quan/)
+
 [3] [https://www.bkns.vn/dns-la-gi.html#DNS_hoat_dong_nhu_the_nao](https://www.bkns.vn/dns-la-gi.html#DNS_hoat_dong_nhu_the_nao)
+
 [4] [https://blog.cloud365.vn/linux/dns-record/](https://blog.cloud365.vn/linux/dns-record/)
+
 [5] [https://news.cloud365.vn/dns-cac-loai-ban-ghi-tren-dns/](https://news.cloud365.vn/dns-cac-loai-ban-ghi-tren-dns/)
+
+[6] [https://blog.bytebytego.com/p/how-does-the-domain-name-system-dns](https://blog.bytebytego.com/p/how-does-the-domain-name-system-dns)
