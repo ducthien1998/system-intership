@@ -113,7 +113,7 @@ MAILTO=root
 ```
 2. Cron job được chỉ định trong /etc/cron.d/0hourly chạy chương trình run-parts mỗi giờ một lần 
 3. Chương trình run-parts sẽ chạy tất cả script có trong thư mục /etc/cron.hourly
-4. Thư mục /etc/cron.hourly chứa script 0anacron, script này sẽ chạy chương trình anacron bằng config file /etdc/anacrontab  ở dưới đây:
+4. Thư mục /etc/cron.hourly chứa script 0anacron, script này sẽ chạy chương trình anacron bằng config file /etc/anacrontab  ở dưới đây:
 
 ```
 # /etc/anacrontab: configuration file for anacron

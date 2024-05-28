@@ -61,3 +61,49 @@ RPM(Red Hat Package Manager) là một mã nguồn mở quản lý các gói tr�
 - rpm.pbone.net
 
 ## 2.2. Cách sử dụng RPM
+
+Để cài đặt bằng RPM có nhiều nguồn lựa chọn để tải bộ cài đặt về , tuy nhiên ta cũng có thể sử dụng những bộ cài có sẵn trong CD-ROM. Trong ổ đĩa có hầu hết các ứng dụng đáp ứng nhu cầu sử dụng và tương thích với thiết bị 
+
+Để lấy các bộ cài từ CD-ROM ta cần mount ổ đĩa quang vào thư mục `mnt`, đây là thư mục để gắn các hệ thống tập tin tạm thời . Ta dùng lệnh sau để mount ổ đĩa quang vào thư mục `mnt`
+
+```
+sudo mount /dev/cdrom /mnt
+```
+![alt text](../imgs/1.png)
+
+Tất cả các bộ cài đặt nằm trong thư mục Packages 
+
+![alt text](../imgs/2.png)
+
+Ta có thể thấy nó chứa hơn 4000 file cài đặt 
+
+![alt text](../imgs/3.png)
+
+**Kiểm tra độ an toàn của gói cài**
+
+Sử dụng lệnh `–checksig` để kiểm tra tính an toàn và nguồn gốc của nó 
+
+```
+rpm --checksig telnet-0.17-65.el7_8.x86_64.rpm
+```
+
+
+**Cài đặt phần mềm bằng option `-i`**
+
+```
+rpm -i /mnt/Packages/nmap-6.40-19.el7.x86_64.rpm
+```
+
+![alt text](../imgs/4.png)
+
+Thông thường khi cài đặt có thể bạn sẽ gặp lỗi `dependencies`. Đây là lỗi xảy ra khi gói cài đặt bạn đang muốn cài đặt bị phụ thuộc vào các gói cài đặt khác , nghĩa là cần phải cài đặt các gói phụ thuộc trước để có thể cài đặt gói ban đầu muốn cài 
+
+Trong trường hợp thiết bị có sẵn các gói phụ thuộc thì ta sẽ tìm và cài theo bản cài mà thiết bị có, còn nếu như không có bản cài phụ thuộc như yêu cầu thì ta sẽ tìm bộ cài trên các nguồn khác 
+
+Ta sẽ tìm thử bộ cài phụ thuộc ở ví dụ trên 
+```
+ls /mnt/Packages/ | grep "libpcap"
+```
+
+![alt text](../imgs/5.png)
+
