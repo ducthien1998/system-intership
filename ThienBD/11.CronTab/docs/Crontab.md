@@ -28,6 +28,7 @@ Cron hoạt động dựa trên các lệnh được chỉ định trong cron ta
 ## 2.1.Cấu trúc file Crontab
 Một crontab file có 5 trường xác định thời gian, cuối cùng là lệnh sẽ được chạy định kỳ, cấu trúc như sau:
 ![alt text](../imgs/1.png)
+
 Nếu một cột được gán ký tự *, nó có nghĩa là tác vụ sau đó sẽ được chạy ở mọi giá trị cho cột đó.
 ![alt text](../imgs/2.png)
 
