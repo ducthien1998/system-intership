@@ -1,0 +1,76 @@
+# TÌM HIỂU VỀ ENDPOINT VÀ CATALOG
+
+Trong Openstack Keystone, các Endpoint và Catalog là các thành phần dịch vụ thiết yếu để quản lý và truy cập các dịch vụ trong cloud. 
+
+# 1. Endpoint in Keystone
+
+- Endpoint là vị trí có thể truy cập mạng (thường là URL), nơi có dịch vụ cụ thể. Mỗi dịch vụ trong Openstack (như Nova cho tính toán, Glance cho dịch vụ image....) đều có điểm cuối liên quan. Các điểm cuối này cho phép người dùng và các dịch vụ khác tương tác với các dịch vụ Openstack 
+- Endpoint thường được phân loại thành 3 loại dựa trên cách sử dụng của chúng 
+    - admin endpoint: Được sử dụng cho các hoạt động quản trị thường yêu cầu quyền cao hơn 
+    - internal endpoint : Được sử dụng để liên lạc trong các dịch vụ Openstack (giữa các thành phần) và cho người dùng bên trong cơ sở hạ tầng đám mây 
+    - public endpoint :  Được người dùng cuối hoặc hệ thống bên ngoài sử dụng để truy cập các dịch vụ Openstack
+
+*Ví dụ*   
+Một dịch vụ Openstack điển hình có thể có   
+    
+    -**Admin URL**: http://admin.openstack.local:8774/v2.1
+    -**Internal URL**: http://internal.openstack.local:8774/v2.1
+    -**Public URL**: http://public.openstack.local:8774/v2.1
+
+- Liệt kê các endpoint đang có 
+
+```
+openstack endpoint list
+```
+ví dụ đầu ra 
+
+```
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------+
+| ID                               | Region    | Service Name | Service Type | Enabled | Interface | URL                       |
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------+
+| abc123def456gh7890ijklmn         | RegionOne | nova         | compute      | True    | public    | http://public.example.com:8774/v2.1 |
+| xyz987poi654rty321qwopas         | RegionOne | nova         | compute      | True    | internal  | http://internal.example.com:8774/v2.1 |
+| qwe123asd456zxc789vbnqwe         | RegionOne | nova         | compute      | True    | admin     | http://admin.example.com:8774/v2.1 |
++----------------------------------+-----------+--------------+--------------+---------+-----------+---------------------------+
+
+```
+
+# 2. Catalog in Keystone 
+
+Catalog service là danh sách tất cả các dịch vụ và các endpoint liên quan của chúng trong Openstack. Khi người dùng xác thực thông qua Keystone, họ sẽ được cấp một mã thông báo cùng với catalog service. Catalog cung cấp cho người dùng danh sách các dịch vụ mà họ có quyền truy cập, cùng với các URL(endpoint) để truy cập các dịch vụ đó.
+
+Mỗi dịch vụ được liệt kê trong catalog service sẽ có thông tin về
+- **Service name** ( ví dụ : Nova, Glance, Keystone)
+- **Service type** ( vú dụ: compute, image, identity)
+- **Endpoint** ( URL được phân loại thành admin, internal, public)
+
+- Liệt kê các catalog đang có 
+
+```
+openstack catalog list
+```
+
+*Ví dụ đầu ra*
+
+```
++-----------+----------------+---------------------------------------------+
+| Name      | Type           | Endpoints                                   |
++-----------+----------------+---------------------------------------------+
+| nova      | compute        | admin: http://admin.example.com:8774/v2.1    |
+|           |                | internal: http://internal.example.com:8774/v2.1 |
+|           |                | public: http://public.example.com:8774/v2.1 |
+| glance    | image          | admin: http://admin.example.com:9292         |
+|           |                | internal: http://internal.example.com:9292   |
+|           |                | public: http://public.example.com:9292       |
+| keystone  | identity       | admin: http://admin.example.com:5000/v3      |
+|           |                | internal: http://internal.example.com:5000/v3 |
+|           |                | public: http://public.example.com:5000/v3    |
++-----------+----------------+---------------------------------------------+
+
+```
+
+Ở đầu ra ở trên có thể thấy 3 dịch vụ :
+- **Nova (compute)**: Có 3 endpoint (admin,internal,public)
+- **Glance (image)**: Nó cũng có ba điểm cuối
+- **Keystone(identity)**: Cung cấp URL cho dịch vụ nhận dạng của Keystone
+

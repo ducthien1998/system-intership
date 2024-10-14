@@ -1,0 +1,178 @@
+# POLICY
+
+# 1.Policy.json file
+**1. Tổng quan**
+
+- `policy.json` trong Keystone (OpenStack) là một tệp cấu hình chứa các quy tắc kiểm soát truy cập dựa trên vai trò (RBAC - Role-Based Access Control) của dịch vụ Keystone. Nó định nghĩa các quyền và hạn chế truy cập đối với các API và hành động khác nhau trong Keystone dựa trên vai trò của người dùng và các thuộc tính khác.
+- Mỗi dịch vụ Openstack, Indentity, Compute, Network,... đều có chính sách truy cập dựa trên vai trò riêng. Chúng xác định người dùng nào có thể truy cập vào đối tượng nào theo cách nào và được xác định trong file `policy.json`. Đường dẫn của file policy thường là `/etc/<project>/policy.json` (với project tương ứng với từng project cụ thể) 
+- Bất cứ khi nào có lời gọi tới API của service trong openstack là được thực hiện, service's policy engine sử dụng các định nghĩa policy để xác định nếu lời gọi được chấp nhận. Bất cứ thay đổi nào trong file policy.json là có hiệu quả ngay lập tức, cho phép chính sách mới thực hiện trong khi dịch vụ đó đang chạy
+- policy.json là file text định dạng json. Mỗi policy được định nghĩa bởi một dòng theo cấu trúc "<target>" : "<rule>"
+    - : các quyền thực hiện đã được định nghĩa sẵn bởi từng dịch vụ
+    - : chính là quy tắc do mình đặt ra để dễ nhớ 
+
+- Mục tiêu của policy còn được gọi là hành động, biểu thị lệnh gọi API như khởi động phiên bản hoặc đính kèm ổ đĩa
+
+**2. Chức năng** 
+- Định nghĩa quyền truy cập: Tệp `policy.json` chỉ định ai (người dùng,nhóm,vai trò) có thể truy cập hoặc thực hiện các thao tác cụ thể trên các API của Keystone. Điều này giúp kiểm soát quyền thực hiện các hành động như tạo, cập nhật, hoặc xóa dự án, vai trò, người dùng...
+- Cấu trúc 
+    - Mỗi quy tắc trong tệp policy.json là một cặp tên quy tắc và điều kiện
+    - Điều kiện có thể dựa trên vai trò của người dùng hoặc dựa trên các thuộc tính của yêu cầu API
+- Cấu hình mặc định: Openstack Keystone cung cấp một tệp policy.json mặc định với các quy tắc phổ biến. người quản trị có thể tùy chỉnh tệp này để đáp ứng nhu cầu bảo mật cụ thể 
+
+**3. Cú pháp**
+
+Một file policy.json bao gồm các chính sách và bí danh có dạng `target:rule` hoặc `alias:definition` , được phân tách bằng dấu phẩy và được đặt trong dấu ngoặc nhọn 
+
+```
+ {
+       "alias 1" : "definition 1",
+       "alias 2" : "definition 2",
+       ...
+       "target 1" : "rule 1",
+       "target 2" : "rule 2",
+       ....
+}
+```
+Mục tiêu là `API` và được viết `service:API` hoặc đơn giản là `API`. Ví dụ, `compute:create` hoặc `add_image`
+Quy tắc xác định xem lệnh gọi API có được phép hay không.
+
+- Luôn đúng, hành động luôn được phép. Điều này có thể được viết là ""(chuỗi rỗng), [], hoặc "@"
+- Luôn luôn sai. Hành động này không bao giờ được phép sẽ được viết là "!"
+- Kiểm tra đặc biệt 
+- So sánh 2 giá trị 
+
+*Các kiểm tra đặc biệt*
+- **role:<role name>** : Kiểm tra thông tin xác thực API có chứa vai trò này hay không 
+- **rule:<rule name>** : Định nghĩa của một bí danh
+- **http:<target URL>** : Chuyển giao việc kiểm tra cho máy chủ từ xa. API được ủy quyền khi máy chủ trả về True
+
+*Kiểm tra đặc biệt bổ sung - So sánh hai giá trị*
+
+```
+"value1 : value2"
+```
+Kết quả trả về sẽ là 
+- Hằng số : Chuỗi, số, true, faile
+- Thuộc tính API
+- Thuộc tính đối tượng mục tiêu: Thuộc tính API có thể là project_id, user_idhoặc domain_id.
+
+**4. Ví dụ về policy.json**
+
+```
+{
+  "admin_required": "role:admin",
+  "identity:get_project": "rule:admin_required or project_id:%(target.project.id)s",
+  "identity:create_user": "role:admin",
+  "identity:list_users": "role:admin or role:reader"
+}
+```
+
+Trong đó bao gồm 
+- **admin_required**: Chỉ những người có vai trò `amdin` mới được thực hiện các hành động yêu cầu quy tắc này 
+- **identity:get_project**: Người dùng có vai trò `admin` hoặc người dùng đang truy cập dự án của chính họ (`project`) có thể lấy thông tin về dự án 
+- **identity:create_user**: Chỉ người có vai trò `admin` mới có thể tạo người dùng mới 
+- **identity:list_users**: Người có vai trò `admin` hoặc `reader` có thể liệt kê danh sách người dùng 
+
+
+# 2.Policy.yaml file
+**1. Tổng quan**
+
+- Tệp `policy.yaml` trong OpenStack là phiên bản mới của tệp `policy.json`, được sử dụng để định nghĩa các chính sách kiểm soát truy cập (RBAC - Role-Based Access Control) cho các dịch vụ OpenStack, bao gồm Keystone.
+- Mỗi dịch vụ Openstack, Identity, Networking đều có chính sách truy cập dựa trên vai trò riêng. Chúng xác định người dùng nào có thể truy cập vào đối tượng ào theo cách nào và được xác định trong file `policy.yaml`
+- Tệp policy.yamllà tệp văn bản theo định dạng YAML (YAML Ain't Markup Language). Mỗi chính sách được định nghĩa bằng một câu lệnh một dòng có dạng ."<target>" : "<rule>" 
+
+**2. Cấu trúc và chức năng** 
+
+- Cấu trúc tương tự policy.json : Mặc dù được chuyển sang dạng YAML, policy.yaml vẫn giữ nguyên các quy tắc như policy, với mỗi quy tắc xác định các điều kiện và quyền truy cập tương ứng dựa trên vai trò và các thuộc tính của yêu cầu API
+- YAML format: YAML là một định dạng dễ đọc hơn cho con người so với json. Điều này giúp các quản trị viên dễ dàng cấu hình và quản lý các chính sách truy cập
+
+**3. Ví dụ câu lệnh**
+
+*Một số ví dụ cơ bản*
+- Mẫu một quy tắc đơn giản
+
+```
+"compute:get_all" : ""
+```
+- Từ chối cấp quyền sử dụng API
+
+```
+"compute:shelve": "!"
+```
+
+Dấu chấm than có nghĩa là không bao giờ hoặc không ai cả, về cơ bản sẽ vô hiệu hóa chức năng của compute API. Nhiều API chỉ có thể được gọi đến bởi admin, điều này được thể hiện bởi quy tắc "role:admin". Chính sách sau đảm bảo rằng chỉ quản trị viên mới có thể tạo người dùng mới trong cơ sở dữ liệu identity
+
+```
+"identity:create_user" : "role:admin"
+```
+
+- Giới hạn API cho bất kỳ vai trò nào. Ví dụ Orchestration định nghĩa một vai trò có tên là heat_stack_user. Bất kỳ ai có vai trò này đều không được phép tạo ngăn xếp 
+
+```
+"stacks:create": "not role:heat_stack_user"
+```
+Quy tắc này sử dụng toán tử `not`. Các quy tắc phức tạp hơn có thể  được xây dựng bằng toán tử `and, or` và dấu ngoặc đơn như sau 
+
+```
+"deny_stack_user": "not role:heat_stack_user"
+```
+Công cụ chính sách hiểu rằng đó không phải là API và do đó diễn giải nó như một bí danh. Chính sách tạo ngăn xếp ở trên sau đó có thể được viết như sau 
+```
+"stacks:create": "rule:deny_stack_user"
+```
+
+Các quy tắc có thể so sánh các thuộc tính API với các thuộc tính với các thuộc tính đối tượng
+
+```
+"os_compute_api:servers:start" : "project_id:%(project_id)s"
+```
+- Người quản trị luôn có quyền gọi API. Đây là cách /etc/keystone/policy.yamllàm cho chính sách này trở nên rõ ràng:
+```
+"admin_required": "role:admin or is_admin:1"
+"owner" : "user_id:%(user_id)s"
+"admin_or_owner": "rule:admin_required or rule:owner"
+"identity:change_password": "rule:admin_or_owner"
+```
+
+**4. Cú pháp**
+
+- Một tập tin `policy.yaml` bao gồm các chính sách và bí danh có dạng `target:rule` hoặc `alias:definition`:
+```
+"alias 1" : "definition 1"
+"alias 2" : "definition 2"
+....
+"target 1" : "rule 1"
+"target 2" : "rule 2"
+....
+```
+- Mục tiêu là API và được viết `"service:API"` hoặc đơn giản là `"API"`. Ví dụ, `"compute:create"` hoặc `"add_image"`.
+
+- Quy tắc xác định xem lệnh gọi API có được phép hay không.
+Các quy tắc có thể là:
+  - Luôn luôn đúng. Hành động luôn được phép. Có thể viết là ""(chuỗi rỗng), [], hoặc "@".
+  - Luôn luôn sai. Hành động này không bao giờ được phép. Được viết là "!".
+  - Một kiểm tra đặc biệt
+  - So sánh hai giá trị
+  - Biểu thức Boolean dựa trên các quy tắc đơn giản hơn
+- Các kiểm tra đặc biệt là:
+  - role:<role name>, kiểm tra xem thông tin xác thực API có chứa vai trò này hay không.
+  - rule:<rule name>, định nghĩa của một bí danh.
+  - http:<target URL>, chuyển giao việc kiểm tra cho máy chủ từ xa. API được ủy quyền khi máy chủ trả về True.
+
+Các nhà phát triển có thể xác định các kiểm tra đặc biệt bổ sung.
+Hai giá trị được so sánh theo cách sau:
+```
+"value1 : value2"
+```
+Các giá trị có thể là
+  - Hằng số: Chuỗi, số, true,false
+  - Thuộc tính API
+  - Thuộc tính đối tượng mục tiêu
+  - Lá cờis_admin
+
+Các thuộc tính API có thể là `project_id`, `user_id` hoặc `domain_id`
+
+*Tài liệu tham khảo*
+[1] [https://docs.openstack.org/oslo.policy/ussuri/admin/policy-json-file.html](https://docs.openstack.org/oslo.policy/ussuri/admin/policy-json-file.html)
+[2] [https://docs.openstack.org/oslo.policy/ussuri/admin/policy-yaml-file.html](https://docs.openstack.org/oslo.policy/ussuri/admin/policy-yaml-file.html)
+[3] [https://github.com/meditechopen/meditech-ghichep-openstack/blob/master/docs/01.Keystone/file-policy.json.md](https://github.com/meditechopen/meditech-ghichep-openstack/blob/master/docs/01.Keystone/file-policy.json.md)
