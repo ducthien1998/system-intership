@@ -153,3 +153,60 @@ $ ls /etc/keystone/fernet-keys
 
 Với cấu hình như trên, bên us-west, 3 trở thành Primary Key để mã hóa fernet token. Khi keystone bên us-west nhận token từ us-east (mã hóa bằng key 2), us-west sẽ xác thực token này, giải mã bằng 4 key theo thứ tự 3, 2, 1, 0. Keystone bên us-east nhận fernet token từ us-west (mã hóa bằng key 3), us-east xác thực token này vì key 3 bên us-west lúc này trở thành staged key (0) bên us-east, keystone us-east giải mã token với 3 key theo thứ tự 2, 1, 0.
 Có thể cấu hình giá trị max_active_keys trong file /etc/keystone.conf để quy định tối đa số key tồn tại trong keystone. Nếu số key vượt giá trị này thì key cũ sẽ bị xóa.
+
+## 4.4. Kế hoạch cho vấn đề rotated keys
+
+Khi sử dụng fernet tokens yêu cầu chú ý về thời hạn của token và vòng đời của khóa. Vấn đề nảy sinh khi secondary keys bị remove khỏi key repos trong khi vẫn cần dùng key đó để giải mã một token chưa hết hạn (token này được mã hóa bởi key đã bị remove).
+Để giải quyết vấn đề này, trước hết cần lên kế hoạch xoay khóa. Ví dụ bạn muốn token hợp lệ trong vòng 24 giờ và muốn xoay khóa cứ mỗi 6 giờ. Như vậy để giữ 1 key tồn tại trong 24h cho mục đích decrypt thì cần thiết lập max_active_keys=6 trong file keytone.conf (do tính thêm 2 key đặc biệt là primary key và staged key ). Điều này giúp cho việc giữ tất cả các key cần thiết nhằm mục đích xác thực token mà vẫn giới hạn được số lượng key trong key repos (/etc/keystone/fernet-keys/).
+
+```
+token_expiration = 24
+rotation_frequency = 6
+max_active_keys = (token_expiration / rotation_frequency) + 2
+```
+
+## 4.5. Fernet token
+Keystone fernet token dựa trên mã hóa base64 bao gồm một số trường sau:   
+- Fernet Format Version (0x80) - 8 bits, biểu thị phiên bản của định dạng token
+- Current Timestamp – số nguyên 64-bit không dấu, chỉ nhãn thời gian tính theo giây, tính từ 1/1/1970, chỉ ra thời điểm token được tạo ra.
+- Initialization Vector (IV) – key 128 bits sử dụng mã hóa AES và giải mã Ciphertext
+- Ciphertext: là keystone payload kích thước biến đổi tùy vào phạm vi của token. Cụ thể hơn, với token có phạm vi project, Keystone Payload bao gồm: version, user id, method, project id, expiration time, audit ids
+- HMAC: 256-bit SHA256 HMAC (Keyd-Hash Messasge Authentication Code) - Mã xác thực thông báo sử dụng hàm một chiều có khóa với signing key kết nối 4 trường ở trên.
+
+## 4.6. Token Generation Workflow
+- Tạo token
+Với key và message nhận được, quá trình tạo fernet token như sau:
+    - 1. Ghi thời gian hiện tại vào trường timestamp
+    - 2. Lựa chọn một IV duy nhất
+    - 3. Xây dựng ciphertext:
+        - Padd message với bội số là 16 bytes (thao tác bổ sung một số bit cho văn bản trong mã hóa khối AES)
+        - Mã hóa padded message sử dụng thuật toán AES 128 trong chế độ CBC với IV đã chọn và encryption-key được cung cấp
+    - 4. Tính toán trường HMAC theo mô tả trên sử dụng signing-key mà người dùng được cung cấp
+    - 5. Kết nối các trường theo đúng format token ở trên
+    - 6. Mã hóa base64 toàn bộ token
+
+
+![alt text](../imgs/47.png)
+
+- Xác thực và khôi phục token   
+Với một key và token, để xác thực token hợp lệ hay không và khôi phục lại thông điệp ban đầu, thực hiện các bước sau:
+    - 1. base64url decode token
+    - 2. Đảm bảo byte đầu tiên của token là 0x80
+    - 3. Nếu đặt time-to-live cho token thì phải đảm bảo timestamp hợp lệ. (không quá xa so với hiện tại)
+    - 4. Tính toán lại HMAC từ các trường khác và signing-key mà người dùng được cung cấp.
+    - 5. Đảm bảo HMAC tính toán lại phải giống với giá trị trường HMAC trong token
+    - 6. Giải mã ciphertext sử dụng AES 128 trong chế độ CBC với giá trị IV đã ghi lại cùng với encryption-key được cung cấp
+    - 7. Unpadd plaintext đã giải mã, thu lại thông điệp ban đầu
+
+
+## 4.7. Token validation workflow
+
+![alt text](../imgs/48.png)
+
+- Gửi yêu cầu xác thực token với phương thức: GET v3/auth/tokens
+- Khôi phục lại padding, trả lại token với padding chính xác
+- Decrypt sử dụng Fernet Keys để thu lại token payload
+- Xác định phiên bản của token payload. (Unscoped token: 1, token trong tầm vực domain: 1, token trong tầm vực project: 2 )
+- Tách các trường của payload để chứng thực. Ví dụ với token trong tầm vực project gồm các trường sau: user id, project id, method, expiry, audit id
+- Kiểm tra xem token đã hết hạn chưa. Nếu thời điểm hiện tại lớn hơn so với thời điểm hết hạn thì trả về thông báo "Token not found". Nếu token chưa hết hạn thì chuyển sang bước tiếp theo
+- Kiểm tra xem token đã bị thu hồi chưa. Nếu token đã bị thu hồi (tương ứng với 1 sự kiện thu hồi trong bảng revocation_event của database keystone) thì trả về thông báo "Token not found". Nếu chưa bị thu hồi thì trả lại token (thông điệp phản hồi thành công HTTP/1.1 200 OK )
