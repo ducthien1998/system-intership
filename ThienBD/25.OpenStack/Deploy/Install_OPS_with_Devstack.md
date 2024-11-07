@@ -79,7 +79,7 @@ vi local.conf
 ```
 [[local|localrc]]
 # Password for KeyStone, Database, RabbitMQ and Service
-ADMIN_PASSWORD=thienbd
+ADMIN_PASSWORD=thienbd@1998
 DATABASE_PASSWORD=$ADMIN_PASSWORD
 RABBIT_PASSWORD=$ADMIN_PASSWORD
 SERVICE_PASSWORD=$ADMIN_PASSWORD
