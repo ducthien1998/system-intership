@@ -46,8 +46,8 @@ systemctl status mariadb
 ```
 mysql_secure_installation
 ```
-![alt text](../imgs/15.png)
-![alt text](../imgs/16.png)
+![alt text](../imgs/20.png)
+![alt text](../imgs/21.png)
 **Bước 3: Cấu hình secure cho MariaDB**
 
 ```
