@@ -8,6 +8,7 @@ MariaDB Master Slave Replication đem lại những lợi ích như
 - Tăng hiệu suất cơ sở dữ liệu
 - Giảm thiểu sự cố chuyển đổi
 - Bảo mật dữ liệu
+
 Trong bài viết này ta sẽ cài đặt với 1 node Master và 1 node Slave. Để cài đặt ta tiến hành theo các bước sau
 # Bước 1. Cài đặt MariaDB trên cả 2 Server
 
@@ -165,6 +166,7 @@ SHOW TABLES;
 ![alt text](../imgs/23.png)
 
 **Trên Slave Server**
+
 Đăng nhập Mariadb và kiểm tra trạng thái Slave bằng lệnh sau 
 
 ```
@@ -185,3 +187,5 @@ MariaDB [(none)]> use mydb;
 MariaDB [mydb]> show tables;
 ```
 
+*Tài liệu tham khảo*
+[1] [https://www.atlantic.net/vps-hosting/how-to-setup-mariadb-master-slave-replication-on-ubuntu-18-04/](https://www.atlantic.net/vps-hosting/how-to-setup-mariadb-master-slave-replication-on-ubuntu-18-04/)
